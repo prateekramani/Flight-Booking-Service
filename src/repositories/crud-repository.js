@@ -33,7 +33,7 @@ class CrudRepository {
 
     async get(data) {
         try {
-            const response =await this.model.findByPK(data)
+            const response =await this.model.findByPk(data)
             return response;
         }
         catch {
