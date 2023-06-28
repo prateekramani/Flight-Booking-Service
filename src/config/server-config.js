@@ -6,5 +6,6 @@ dotenv.config({path : path.resolve(__dirname , '../../.env')});
 // console.log(process.env) 
 
 module.exports = {
-    "PORT" : process.env.PORT
+    "PORT" : process.env.PORT,
+    "FLIGHT_SERVICE" : process.env.FLIGHT_SERVICE
 }
