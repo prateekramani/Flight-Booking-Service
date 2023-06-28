@@ -18,7 +18,6 @@ async function createBooking(req, res) {
             totalCost : req.body.totalCost,
             noOfSeats : req.body.noOfSeats 
         })
-        console.log( "inside booking - controller " , booking);
         successResponse.msg = "Successfully created an Booking";
         successResponse.data = booking;
         return res.status(StatusCodes.CREATED).json(successResponse);
