@@ -30,6 +30,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 1
       },
+      noOfSeats: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
