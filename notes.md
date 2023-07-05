@@ -317,3 +317,34 @@ Why is there a inter service connection b/w Booking and Flight Service ?
 
 Since While Booking is more about Reading Flights is a heavier operation than Booking a Flight , so we are making 2 service , so that we can scale them differently as per our need 
 plus , Booking service can used by some other project also
+
+
+
+3 major problems were 
+- concurrency (1 & 2) (bokking same seats by 2 person and only 1 seat left) = handled by locks and transactions
+- last problem is retring payemnt - soln is to try tcp connection , because Tcp is a reliable connection and we definately get the response back 
+
+But what if we get the response as processing and we never get the processing completed notification, in this case also users end up doing double transactions 
+
+There can be situtaion like , somehow , User initiates 2 payment request for the same booking (and money got deducted twice)
+
+There is a concept called as idempotency - it is a property of certain operations in Maths and CS where they can be applied multiple times without chanigng the result beyond first successful application
+
+This means , if first request is successfull , and same request is sent again , then it will be ignored or will have no effect 
+
+From here we get concept of Idempotent APIs , (after first successful request , no other request make sense (will be ignored)) , so for only one time ,if everything wents well, payment will be deducted 
+
+This process will need idempotency key to be sent via request body from the client , which will be saved in the server somewhere after the use
+And before using this key , we will check whether its already saved or not , if it were already saved that means one successful call has already happened (payment is already done) , so no repeat request 
+else if key is not there , then one the code executed , key is stored  
+
+And if we are not getting any idempotency key , then also we will not allow request to be proceed 
+
+
+- in the request header we can have the idempotency key - with unique value
+This key and value can be written manaully , or taken help of UUID package in Node
+
+- npm install uuid
+
+- idempotency key can be stored in DB , for faster implementation , it can be stored in Cache Redis , or some internal memory object (in case of internal memory object , object will be deleted as soon as server stops)
+

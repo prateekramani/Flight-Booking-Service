@@ -38,21 +38,21 @@ async function createBooking(data) {
 }
 
 async function makePayment(data) {
-    
+
     const transaction = await db.sequelize.transaction();
     try {
         const bookingDetails = await bookingrepository.get(data.bookingId, transaction)
 
         if (bookingDetails.status == CANCELLED) {
-            throw new AppError("The Booking has expired !!" , StatusCodes.BAD_REQUEST);    
+            throw new AppError("The Booking has expired !!", StatusCodes.BAD_REQUEST);
         }
 
         const bookingTime = new Date(bookingDetails.createdAt);
-        const currentTime = new Date ();
+        const currentTime = new Date();
 
-        if(currentTime - bookingTime > 300000) {
+        if (currentTime - bookingTime > 300000) {
             await cancelBooking(data);
-            throw new AppError("The Booking has expired !!" , StatusCodes.BAD_REQUEST);
+            throw new AppError("The Booking has expired !!", StatusCodes.BAD_REQUEST);
         }
         if (bookingDetails.totalCost != data.totalCost) {
             throw new AppError("The Amount of the payment dosen't match !!", StatusCodes.BAD_REQUEST);
@@ -66,7 +66,7 @@ async function makePayment(data) {
         await bookingrepository.update(data.bookingId, { status: BOOKED }, transaction);
 
         await transaction.commit();
-        
+
     } catch (error) {
         await transaction.rollback();
         throw error;
@@ -84,19 +84,28 @@ async function cancelBooking(data) {
         }
         await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDetails.flightId}/seats`, {
             seats: bookingDetails.noOfSeats,
-            dec : 0
+            dec: 0
         });
         const response = await bookingrepository.update(data.bookingId, { status: CANCELLED }, transaction);
         console.log(response);
         transaction.commit();
 
     } catch (error) {
-        
+        await transaction.rollback();
+        throw error;
     }
+}
+
+
+async function cancelOldBookings() {
+    const time = new Date(Date.now() - 1000 * 300); // 5 mins ago time
+    const response = await bookingrepository.cancelOldBookings(time)
+    return response;
 }
 
 module.exports = {
     createBooking,
     makePayment,
-    cancelBooking
+    cancelBooking,
+    cancelOldBookings
 }
