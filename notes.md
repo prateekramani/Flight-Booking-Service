@@ -348,3 +348,78 @@ This key and value can be written manaully , or taken help of UUID package in No
 
 - idempotency key can be stored in DB , for faster implementation , it can be stored in Cache Redis , or some internal memory object (in case of internal memory object , object will be deleted as soon as server stops)
 
+# Notes for API Gateway Project 
+
+Similar to triggers , we have Hooks in Sequelize 
+Which can used while creating the user , we can encrypt the password by addind the hook
+Hook can be added in the User Model, or we can write User.addhook in the same model file
+For that we will be using bCrypt
+User.beforeCreate is like a Hook in Api Gateway Project
+
+
+Authentication and Authorization
+Authentication - means who are you ?
+Authorization - what can you do 
+
+`Passport.Js` is one of the famous package to establish authentication
+
+we will be doing Jwt (JSON web toekn) authentication 
+
+- Steps in JWT Authentication
+User send the request sending (mail , password) to servers (User controller).
+Server controller decides to forward it to User service by checking , 
+Whether User exixts or not with coressponding email id , if not , we throw error User not FOund
+whether the pwd is valid or not If pwd is not valid ,we will direclty throw the error 
+if pwd is valid , we generate the JWT token (secret token) , and send it back to the user 
+and the User on the client side stores the JWT token in ex Cookie 
+
+Why do we need to store the token ?
+so that inside the request header , we can have something like `x-access-token` as jwt token , send it to the server
+Now the controller will first check if Jwt is there 
+If not , throw error 
+If yes , we verify JWT token via package , if its valid , then Businees Logic is executed 
+
+This process can be followed for all the auth based API/resources , inside the middleware only 
+We can also expire the JWT token.
+`https://jwt.io`
+
+JSON web token is the package , we'll use
+
+`npm i jsonwebtoken`
+
+
+`npm i express-rate-limit` - rate limiter 
+
+- Forward Proxy
+Forward Proxy sits between a client and the internet .
+Client requests a resource, from the internet through forward proxy which acts as an intermediate layer
+
+Why to use it ?
+Filterration of request logic can be done before only 
+Catching control can be done 
+Access Control can be done , so that not every api is accessible to the user 
+User anomility - if we dont want to expose the ip to the user , then forward proxy raise the request on the behalf of user to the corresponding IP
+
+Disadvantages 
+Complex to develop.
+if it fails (in case of a lot request being sent and we haven't scaled it), no request can be forwarded , as it is a single point entry.
+Introducing a new layer might come with latency.
+
+
+- Reverse Proxy
+Sits between internet and servers , such that when the request goes from client to internet , post that it should go to reverse proxy , and then to the servers 
+Also , the response from server first goes to proxy and then to client
+It helps us to protect the origin server from direct client access.
+Sometimes it helps in load balancing as well
+
+Disadvantages - same as above 
+
+Nginx is one common already built reverse proxy
+
+We will make a custom reverse proxy by installing a package 
+`npm i http-proxy-middleware`
+
+Lets say user sent request to localhost:3000/api/vi/flights
+SO we will define a API Gateway , localhost:5000 which will then make the call to localhost:3000/api/vi/flights or 
+localhost:4000/api/vi/flights-booking
+

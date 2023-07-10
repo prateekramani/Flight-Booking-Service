@@ -13,11 +13,12 @@ app.use(express.json()) //this is going to add a middleware for all the upcoming
 app.use(express.urlencoded({extended : true })) // to read url endoded stuff in req bodu
 
 app.use('/api' , apiRoutes);
+app.use('/flightsService/api' , apiRoutes);
 
 
 app.listen( ServerConfig.PORT , ()=>{
-    Logger.info("Successfully started the server on PORT", {});
+    Logger.info("Successfully started the Flight Booking Service server on PORT", {});
     CRONS();
     // info is the level , Success....is the message 
-    console.log( `Successfully started the server on PORT : ${ServerConfig.PORT}`)
+    console.log( `Successfully started the Flight Booking Service server on PORT : ${ServerConfig.PORT}`)
 })
