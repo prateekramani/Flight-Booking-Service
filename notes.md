@@ -486,3 +486,49 @@ In Dashboard , apoart from Connections we also have channels
 Some applications need multiple logical connections to the broker. However, it is undesirable to keep many TCP connections open at the same time because doing so consumes system resources and makes it more difficult to configure firewalls. AMQP 0-9-1 connections are multiplexed with channels that can be thought of as "lightweight connections that share a single TCP connection".
 
 Channel has a asserqueue function , which creates a queue for us , it not present
+
+Third Problem 
+When 2 user books the same seat 
+In that case , we can handle it with the help of indexes in RDBMS 
+indexes prepares data for contraints and faster query 
+normally data in in array , so for searching it does linear searching 
+in case of indexes , on searching , we can prepare the data in sorted array , or binary search trees 
+
+Indexes can also helps in contraints as well 
+we can have a table seat booking containing (user id , seat id , booking id , flight id)
+
+lets say 2 users booked same booking , and now they are going for payment 
+in that case we put a unique constaints that (seat id , flight id) shouls be unique  , and bind this thing into a transaction , 
+
+https://stackoverflow.com/questions/42195348/how-to-define-unique-index-on-multiple-columns-in-sequelize
+
+```
+    var Tag = sequelize.define('Tag', {
+        id: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        user_id: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+        },
+        count: {
+            type: DataTypes.INTEGER(11),
+            allowNull: true
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        }
+    },
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['user_id', 'count', 'name']
+            }
+        ]
+    });
+```
