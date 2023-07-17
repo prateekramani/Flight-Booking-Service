@@ -7,5 +7,6 @@ dotenv.config({path : path.resolve(__dirname , '../../.env')});
 
 module.exports = {
     "PORT" : process.env.PORT,
-    "FLIGHT_SERVICE" : process.env.FLIGHT_SERVICE
+    "FLIGHT_SERVICE" : process.env.FLIGHT_SERVICE,
+    "QUEUE_NAME" : process.env.QUEUE_NAME
 }

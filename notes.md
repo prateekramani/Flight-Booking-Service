@@ -423,3 +423,66 @@ Lets say user sent request to localhost:3000/api/vi/flights
 SO we will define a API Gateway , localhost:5000 which will then make the call to localhost:3000/api/vi/flights or 
 localhost:4000/api/vi/flights-booking
 
+
+- Authorization 
+User Role can be admin , Flight company , Customer 
+Flight company  - This Role can add/edit the Flight , no one else should be allowed
+
+This Role table will have many to many association 
+User can have many Roles
+One Role can have many Users 
+In many to many association we need to have a `Thorugh Table` or `Join Table`
+
+For example , there is a table of User and a table of Role , and there is a many to many assciation
+Lets name the Join table as user-roles table ... like
+user Id , role Id , (third property can be the common link)
+(for example in case of Doctors and Patients 3rd property can be appointment date etc)
+for example in edtech , Roles can be student , admin , TA , Teacher , Parentn (Join table can consists of user id , role id , course , schedule) - so many roles can be taken by a user (same person can be teacher , TA) , and many user can belong to one role
+
+
+In order to use the magical function of paranet model like 
+user.getRoles
+
+where roles belongs to User & user has many roles , then we need to have Roles attirbutes in camel case 
+
+While forwarding request to some other service , we can also include the middlewares like :
+`app.use('/flightsService', [middleware1 , middleware2 ...] , createProxyMiddleware({ target: ServerConfig.FLIGHT_SERVICE, changeOrigin: true }));`
+
+We will be setting up a messaging queues to forward request booking to notification service 
+notification service  helps us in pub - sub architecture , where booking service will publish an event to send an email and notification will enable an subscriber , it will pick an event and sent the mail 
+
+In this way , booking service will not be blocked until notification is sent
+and notification service will not be bombarded , with a lot of booking requests
+This way we can reduce the number of request so that notification service dosen't fail
+
+We can have 2 types of emails :
+Instant email - handled by notification service
+Scheduled email - handled by Crons
+
+
+# Things learned :
+Proxy , Inter Service Communication , Rate Limiter , ORM, auth, Idempotency , Transactions , Queuing Mech ,Assoications (One to many , many to one , many to many) , Deployments (Docker , Kubernetes , Auto scaling)
+
+One problem left is :
+Two people trying to book the same seat 
+when only one seat was there (that was solved by transaction serializing and double payment was handled by idempotency apis)
+Another feature left is the notification service which will be another microservice 
+
+
+# Message Queue 
+From the booking service to notification service , we have to create a ticket 
+booking service dosent need to wait until notification is sent.
+Another case can be booking service is working on higher scale than notification service 
+In that case , if a lot of tickets starts creating on notification service , then there will be a lot of load on it 
+So we need to reduce the load on Notification service 
+For that we have to add Message queue , where booking service published the event and notification service subscribes to the event. (Pub Sub Architecture)
+
+One exampel of queueing serive is Rabbit Mq , it runs on its own server 
+`npm i amqplib` is the library to install Rabbit MQ
+
+Post running Rabbit Mq , we can login on dashboard `http://localhost:15672/#/` via guest/guest
+In Dashboard , apoart from Connections we also have channels
+
+Some applications need multiple logical connections to the broker. However, it is undesirable to keep many TCP connections open at the same time because doing so consumes system resources and makes it more difficult to configure firewalls. AMQP 0-9-1 connections are multiplexed with channels that can be thought of as "lightweight connections that share a single TCP connection".
+
+Channel has a asserqueue function , which creates a queue for us , it not present

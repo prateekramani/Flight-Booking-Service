@@ -2,7 +2,7 @@
 
 
 const axios = require("axios");
-const { ServerConfig } = require("../config")
+const { ServerConfig, QueueConfig } = require("../config")
 const { BookingRepository } = require("../repositories");
 const db = require("../models");
 const AppError = require("../../../Flight-Service/src/utils/errors/app-error");
@@ -64,7 +64,12 @@ async function makePayment(data) {
         // we assume that payement is successful
 
         await bookingrepository.update(data.bookingId, { status: BOOKED }, transaction);
+        QueueConfig.sendData({
+            recipientMail : "ramaniprateek@gmail.com",
+            subject : `Flight Booked`,
+            content : `Booking Successfully Done for the Flight ${bookingDetails.flightId} , seats : ${bookingDetails.noOfSeats}`,
 
+        })
         await transaction.commit();
 
     } catch (error) {
